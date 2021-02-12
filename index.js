@@ -2,44 +2,119 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const childProcess = require('child_process')
 
+const typeLabels = {
+    fix: "Bug Fixes",
+    tweak: "Changes",
+    feat: "New Features",
+    other: "Other Changes"
+}
+
+// Splits a commit message into type, category and message
+function processCommit(commitMessage) {
+    const commitDetails = commitMessage.split(':')
+
+    // Split Meta Information
+    const metadata = commitDetails[0]
+    let type = ""
+    let category = ""
+    if (metadata.includes('(') && metadata.includes(')')) {
+        type = metadata.split('(')[0]
+        category = metadata.split('(')[1].replace(')', '')
+    } else {
+        type = metadata
+    }
+
+    // Split Message
+    const message = commitDetails[1]
+    return {type: type.trim(), category: category.trim(), message: message.trim()}
+}
+
+// Loops through each commit, splits it and returns a list sorted by type
+function processCommits(commitMessages) {
+    var commits = {
+        // Example
+        // tweak = [{type, category, message}]
+    }
+
+    // Load empty arrays
+    for (const type in typeLabels) {
+        commits[type] = []
+    }
+
+    commitMessages.forEach(msg => {
+        console.log(`Commit Message: ${msg}`)
+
+        if (msg.includes(':')) {            
+            const commit = processCommit(msg)
+
+            // Categorise and push to arrays
+            if (typeLabels[commit.type]) {
+                commits[commit.type].push(commit)
+            } else {
+                commits["other"].push(commit)
+            }
+
+        } else {
+            console.log(`Skipping: invalid commit message`)
+        }
+    });
+
+    return commits
+}
+
+// Internal function used in generateMarkdown
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Converts processed commits to markdown
+function generateMarkdown(allCommits) {
+    var output = ""
+
+    for (const type in allCommits) {
+        const typeLabel = typeLabels[type]
+        const commits = allCommits[type];
+
+        // Check if there are any commits of this type
+        if (commits.length > 0) {
+            output += `## ${typeLabel}\n`
+
+            commits.forEach(commit => {
+                if (commit.category && commit.category.length > 0) {
+                    output += `${capitalizeFirstLetter(commit.category)}: ${capitalizeFirstLetter(commit.message)}\n`
+                } else {                
+                    output += `${capitalizeFirstLetter(commit.message)}\n`
+                }
+            });
+
+            output += "\n"
+        } else {
+            console.log(`No commits of type "${type}". Skipping`)
+        }
+
+    }
+
+    return output
+}
+
 try {
     const nextTagLabel = core.getInput('new-version-label')
     console.log(`Preparing to create new release with tag ${nextTagLabel}`)
 
     childProcess.exec('sh getcommits.sh', function(err, stdout, stderr) {
-        console.log(stdout)
-        const commitMessages = stdout.split(/\r?\n/)
-
-        commitMessages.forEach(msg => {
-            console.log(`Commit Message: ${msg}`)
-
-            if (msg.includes(':')) {
-                const commitDetails = msg.split(':')
-
-                // Split Meta Information
-                const metadata = commitDetails[0]
-                let type = ""
-                let category = ""
-                if (metadata.includes('(') && metadata.includes(')')) {
-                    type = metadata.split('(')[0]
-                    category = metadata.split('(')[1].replace(')', '')
-                } else {
-                    type = metadata
-                }
-
-                // Split Message
-                const message = commitDetails[1].trim()
-                console.log(type, category, message)
-
-            } else {
-                console.log(`Skipping: invalid commit message`)
-            }
-        });
+        if (!err) {
+            // Split each line from git log, and process into an object
+            const commits = processCommits(stdout.split(/\r?\n/))
+            console.log(generateMarkdown(commits))
+        }        
     })
 
-    // Get the JSON webhook payload for the event that triggered the workflow
-    // const payload = JSON.stringify(github.context.payload, undefined, 2)
-    // console.log(`The event payload: ${payload}`);
+    // Test Code
+    // const commits = processCommits(`fix: Fixed assignment to a const
+    // feat(cicd): Begin the string splitting process
+    // Initial Commit
+    // Initial commit`.split(/\r?\n/))
+    // console.log(generateMarkdown(commits))
 } catch (error) {
     core.setFailed(error.message);
 }
