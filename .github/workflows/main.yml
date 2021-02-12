@@ -1,0 +1,15 @@
+on: [push]
+
+jobs:
+  quack-cicd:
+    runs-on: ubuntu-latest
+    name: Testing Quack CI/CD
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Run 
+      id: hello
+      uses: kn0pee/quack-cicd@main
+      with:
+        new-version-label: 'v0.0.1'

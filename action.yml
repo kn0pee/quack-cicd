@@ -1,0 +1,9 @@
+name: 'Quack CI/CD'
+description: 'CI/CD for Fat Duck Gaming FiveM services'
+inputs:
+  new-version-label:
+    description: 'Label of the next release'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
