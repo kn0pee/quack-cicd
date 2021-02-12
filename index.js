@@ -6,6 +6,8 @@ const typeLabels = {
     fix: "Bug Fixes",
     tweak: "Changes",
     feat: "New Features",
+    perf: "Performance Upgrades",
+    docs: "Documentation",
     other: "Other Changes"
 }
 

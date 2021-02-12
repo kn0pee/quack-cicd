@@ -13,6 +13,8 @@ const typeLabels = {
     fix: "Bug Fixes",
     tweak: "Changes",
     feat: "New Features",
+    perf: "Performance Upgrades",
+    docs: "Documentation",
     other: "Other Changes"
 }
 
@@ -56,9 +58,11 @@ function processCommits(rawCommits) {
             const commit = processCommit(msg)
 
             // Categorise and push to arrays
-            if (typeLabels[commit.type] && !msg.includes('[ignore]')) {
+            if (typeLabels[commit.type] && !msg.includes('[ignore]') && !msg.includes('Merge branch')) {
                 commits[commit.type].push(commit)
-            } else {
+
+            // Dont include merges in release notes
+            } else if(!msg.includes('Merge branch')) {
                 commits["other"].push(commit)
             }
 
