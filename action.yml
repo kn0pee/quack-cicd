@@ -1,6 +1,5 @@
 name: 'Quack CI/CD'
 description: 'CI/CD for Fat Duck Gaming FiveM services'
-inputs:
 runs:
   using: 'node12'
   main: 'dist/index.js'
