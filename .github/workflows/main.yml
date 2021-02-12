@@ -1,4 +1,9 @@
-on: [push]
+on:
+  workflow_dispatch:
+    inputs:
+      versionTag:
+        description: 'Version'     
+        required: true
 
 jobs:
   quack-cicd:
@@ -12,5 +17,16 @@ jobs:
       id: generateChangelog
       uses: kn0pee/quack-cicd@main
 
-    - name: Print Changelog
-      run: echo "${{ steps.generateChangelog.outputs.changelog }}"
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.event.inputs.versionTag }}
+        release_name: Release ${{ github.event.inputs.versionTag }}
+        body: |
+          # Changelog
+          ${{ steps.generateChangelog.outputs.changelog }}
+        draft: false
+        prerelease: false
