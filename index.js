@@ -1,6 +1,7 @@
 const core = require('@actions/core');
-const github = require('@actions/github');
 const childProcess = require('child_process')
+const simpleGit = require('simple-git');
+const git = simpleGit()
 
 const typeLabels = {
     fix: "Bug Fixes",
@@ -30,7 +31,7 @@ function processCommit(commitMessage) {
 }
 
 // Loops through each commit, splits it and returns a list sorted by type
-function processCommits(commitMessages) {
+function processCommits(rawCommits) {
     var commits = {
         // Example
         // tweak = [{type, category, message}]
@@ -41,7 +42,8 @@ function processCommits(commitMessages) {
         commits[type] = []
     }
 
-    commitMessages.forEach(msg => {
+    rawCommits.forEach(commit => {
+        const msg = commit.message
         console.log(`Commit Message: ${msg}`)
 
         if (msg.includes(':')) {            
@@ -55,7 +57,7 @@ function processCommits(commitMessages) {
             }
 
         } else {
-            console.log(`Skipping: invalid commit message`)
+            // console.log(`Skipping: invalid commit message`)
         }
     });
 
@@ -76,7 +78,7 @@ function generateMarkdown(allCommits) {
         const commits = allCommits[type];
 
         // Check if there are any commits of this type
-        if (commits.length > 0) {
+        if (commits && commits.length > 0) {
             output += `## ${typeLabel}\n`
 
             commits.forEach(commit => {
@@ -89,7 +91,7 @@ function generateMarkdown(allCommits) {
 
             output += "\n"
         } else {
-            console.log(`No commits of type "${type}". Skipping`)
+            // console.log(`No commits of type "${type}". Skipping`)
         }
 
     }
@@ -98,23 +100,17 @@ function generateMarkdown(allCommits) {
 }
 
 try {
-    const nextTagLabel = core.getInput('new-version-label')
-    console.log(`Preparing to create new release with tag ${nextTagLabel}`)
+    git.fetch("origin", "+refs/tags/*:refs/tags/*", ["--depth=1"])
+        .fetch("origin", "+refs/heads/*:refs/remotes/origin/*", ["--no-tags", "--prune", "--depth=1"])
+        .fetch(["--prune", "--unshallow"])
+        .log()
+        .then(output => {
+            const commits = processCommits(output.all)
+            const formattedOutput = generateMarkdown(commits)
+            console.log("\n\n", formattedOutput)
+            core.setOutput("changelog", formattedOutput)
+        })
 
-    childProcess.exec('sh getcommits.sh', function(err, stdout, stderr) {
-        if (!err) {
-            // Split each line from git log, and process into an object
-            const commits = processCommits(stdout.split(/\r?\n/))
-            console.log(generateMarkdown(commits))
-        }        
-    })
-
-    // Test Code
-    // const commits = processCommits(`fix: Fixed assignment to a const
-    // feat(cicd): Begin the string splitting process
-    // Initial Commit
-    // Initial commit`.split(/\r?\n/))
-    // console.log(generateMarkdown(commits))
 } catch (error) {
     core.setFailed(error.message);
 }

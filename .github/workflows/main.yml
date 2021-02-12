@@ -8,8 +8,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Run 
-      id: hello
+    - name: Generate Changelog 
+      id: generateChangelog
       uses: kn0pee/quack-cicd@main
-      with:
-        new-version-label: 'v0.0.1'
+
+    - name: Print Changelog
+      run: echo "${{ steps.generateChangelog.outputs.changelog }}"
