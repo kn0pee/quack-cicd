@@ -103,19 +103,19 @@ function generateMarkdown(allCommits) {
 }
 
 try {
+    console.log("Preparing release...")
     git.fetch("origin", "+refs/tags/*:refs/tags/*", ["--depth=1"])
         .fetch("origin", "+refs/heads/*:refs/remotes/origin/*", ["--no-tags", "--prune", "--depth=1"])
         .fetch(["--prune", "--unshallow"])
         .tags((err, tags) => {
             const tag = tags.latest
             console.log("Getting commits since " + (tag ? tag : "initial commit"))
-            git.log(tag ? {from: tag, to: "main"} : null).then(output => {
+            git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
                 const commits = processCommits(output.all)
                 const formattedOutput = generateMarkdown(commits)
                 core.setOutput("changelog", formattedOutput)
             })
-        })
-        
+        })        
 
 } catch (error) {
     core.setFailed(error.message);
