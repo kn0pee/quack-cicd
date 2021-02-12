@@ -25,8 +25,8 @@ try {
 
                 // Split Meta Information
                 const metadata = commitDetails[0]
-                const type = ""
-                const category = ""
+                let type = ""
+                let category = ""
                 if (metadata.includes('(') && metadata.includes(')')) {
                     type = metadata.split('(')[0]
                     category = metadata.split('(')[1].replace(')', '')
