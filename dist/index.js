@@ -57,7 +57,7 @@ function processCommits(rawCommits) {
             const commit = processCommit(msg)
 
             // Categorise and push to arrays
-            if (typeLabels[commit.type] || msg.includes('[ignore]')) {
+            if (typeLabels[commit.type] && !msg.includes('[ignore]')) {
                 commits[commit.type].push(commit)
             } else {
                 commits["other"].push(commit)
