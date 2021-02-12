@@ -5,6 +5,8 @@ on:
         description: 'Version'     
         required: true
 
+name: Test Release
+
 jobs:
   quack-cicd:
     runs-on: ubuntu-latest
