@@ -7,7 +7,7 @@ module.exports =
 
 const core = __nccwpck_require__(9254);
 const simpleGit = __nccwpck_require__(5852);
-const git = simpleGit()
+const fs = __nccwpck_require__(5747)
 
 const typeLabels = {
     fix: "Bug Fixes",
@@ -110,19 +110,31 @@ function generateMarkdown(allCommits) {
 }
 
 try {
-    console.log("Preparing release...")
-    git.fetch("origin", "+refs/tags/*:refs/tags/*", ["--depth=1"])
-        .fetch("origin", "+refs/heads/*:refs/remotes/origin/*", ["--no-tags", "--prune", "--depth=1"])
-        .fetch(["--prune", "--unshallow"])
-        .tags((err, tags) => {
-            const tag = tags.latest
-            console.log("Getting commits since " + (tag ? tag : "initial commit"))
-            git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
-                const commits = processCommits(output.all)
-                const formattedOutput = generateMarkdown(commits)
-                core.setOutput("changelog", formattedOutput)
+    console.log("Preparing release... 12345")
+    const directoryString = core.getInput("directory")
+    console.log("Hello World!")
+    console.log(directoryString)
+
+    // fs.access(directoryString, function(err) {
+    //     console.log(err)
+    //     if (!err) {
+            console.log("Directory Found!")
+            const git = simpleGit(directoryString)
+            git.tags((err, tags) => {
+                console.log(err)
+                const tag = tags.latest
+                console.log("Getting commits since " + (tag ? tag : "initial commit"))
+                git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
+                    const commits = processCommits(output.all)
+                    const formattedOutput = generateMarkdown(commits)
+                    core.setOutput("changelog", formattedOutput)
+                })
             })
-        })        
+    //     } else {
+    //         console.log("Directory not found!")
+    //         core.setFailed("File directory doesn't exist.")
+    //     }
+    // })
 
 } catch (error) {
     core.setFailed(error.message);

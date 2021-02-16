@@ -114,6 +114,7 @@ try {
             console.log("Directory Found!")
             const git = simpleGit(directoryString)
             git.tags((err, tags) => {
+                console.log(err)
                 const tag = tags.latest
                 console.log("Getting commits since " + (tag ? tag : "initial commit"))
                 git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
