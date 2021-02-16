@@ -15,4 +15,5 @@ jobs:
         directory: 'C:\GitHub\production'
 
     - name: Print Release Notes
-      run: echo ${{ steps.generateChangelog.outputs.changelog }}
+      run: |
+        echo "${{ steps.generateChangelog.outputs.changelog }}"
