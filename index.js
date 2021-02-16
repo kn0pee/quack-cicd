@@ -124,7 +124,7 @@ try {
     getCommitsForRepo(directoryString, coreCommits => {
         getCommitsForRepo(directoryString + "/resources/[main]", mainCommits => {
             getCommitsForRepo(directoryString + "/resources/[stream]", streamCommits => {
-                const rawCommits = {...coreCommits, ...mainCommits, ...streamCommits}
+                const rawCommits = [...coreCommits, ...mainCommits, ...streamCommits]
                 console.log(rawCommits)
                 const commits = processCommits(rawCommits)
                 const formattedOutput = generateMarkdown(commits)
