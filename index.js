@@ -103,7 +103,7 @@ function generateMarkdown(allCommits) {
 }
 
 try {
-    console.log("Preparing release...")
+    console.log("Preparing release... 123")
     const directoryString = core.getInput("directory")
     console.log("Hello World!")
     console.log(directoryString)
