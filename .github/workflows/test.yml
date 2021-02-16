@@ -1,0 +1,18 @@
+on:
+  - push
+
+name: Test Release
+
+jobs:
+  quack-cicd:
+    runs-on: self-hosted
+    name: Testing Quack CI/CD
+    steps:
+    - name: Generate Changelog 
+      id: generateChangelog
+      uses: kn0pee/quack-cicd@main
+      with:
+        directory: 'C:\GitHub\production'
+
+    - name: Print Release Notes
+      run: echo ${{ steps.generateChangelog.outputs.changelog }}

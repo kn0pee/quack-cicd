@@ -108,6 +108,7 @@ try {
 
     fs.access(directoryString, function(err) {
         if (!err) {
+            console.log("Directory Found!")
             const git = simpleGit(directoryString)
             git.tags((err, tags) => {
                 const tag = tags.latest
@@ -119,6 +120,7 @@ try {
                 })
             })
         } else {
+            console.log("Directory not found!")
             core.setFailed("File directory doesn't exist.")
         }
     })
