@@ -1,6 +1,6 @@
 const core = require('@actions/core');
 const simpleGit = require('simple-git');
-const git = simpleGit()
+const fs = require("fs")
 
 const typeLabels = {
     fix: "Bug Fixes",
@@ -104,18 +104,24 @@ function generateMarkdown(allCommits) {
 
 try {
     console.log("Preparing release...")
-    git.fetch("origin", "+refs/tags/*:refs/tags/*", ["--depth=1"])
-        .fetch("origin", "+refs/heads/*:refs/remotes/origin/*", ["--no-tags", "--prune", "--depth=1"])
-        .fetch(["--prune", "--unshallow"])
-        .tags((err, tags) => {
-            const tag = tags.latest
-            console.log("Getting commits since " + (tag ? tag : "initial commit"))
-            git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
-                const commits = processCommits(output.all)
-                const formattedOutput = generateMarkdown(commits)
-                core.setOutput("changelog", formattedOutput)
+    const directoryString = core.getInput("directory")
+
+    fs.access(directoryString, function(err) {
+        if (!err) {
+            const git = simpleGit(directoryString)
+            git.tags((err, tags) => {
+                const tag = tags.latest
+                console.log("Getting commits since " + (tag ? tag : "initial commit"))
+                git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
+                    const commits = processCommits(output.all)
+                    const formattedOutput = generateMarkdown(commits)
+                    core.setOutput("changelog", formattedOutput)
+                })
             })
-        })        
+        } else {
+            core.setFailed("File directory doesn't exist.")
+        }
+    })
 
 } catch (error) {
     core.setFailed(error.message);

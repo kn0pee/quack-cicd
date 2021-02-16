@@ -9,15 +9,14 @@ name: Test Release
 
 jobs:
   quack-cicd:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: Testing Quack CI/CD
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
     - name: Generate Changelog 
       id: generateChangelog
       uses: kn0pee/quack-cicd@main
+      with:
+        directory: 'C:\GitHub\production'
 
     - name: Create Release
       id: create_release

@@ -3,3 +3,7 @@ description: 'CI/CD for Fat Duck Gaming FiveM services'
 runs:
   using: 'node12'
   main: 'dist/index.js'
+inputs:
+  directory:
+    description: 'Local directory of git repo'
+    required: true
