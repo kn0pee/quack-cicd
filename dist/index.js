@@ -128,9 +128,9 @@ try {
     const directoryString = core.getInput("directory")
     console.log("Looking for git in directory " + directoryString)
 
-    getCommitsForRepo(directory, coreCommits => {
-        getCommitsForRepo(directory + "/resources/[main]", mainCommits => {
-            getCommitsForRepo(directory + "/resources/[stream]", streamCommits => {
+    getCommitsForRepo(directoryString, coreCommits => {
+        getCommitsForRepo(directoryString + "/resources/[main]", mainCommits => {
+            getCommitsForRepo(directoryString + "/resources/[stream]", streamCommits => {
                 const rawCommits = {...coreCommits, ...mainCommits, ...streamCommits}
                 console.log(rawCommits)
                 const commits = processCommits(rawCommits)
