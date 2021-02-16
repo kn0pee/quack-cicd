@@ -40,10 +40,7 @@ function processCommit(commitMessage) {
 
 // Loops through each commit, splits it and returns a list sorted by type
 function processCommits(rawCommits) {
-    var commits = {
-        // Example
-        // tweak = [{type, category, message}]
-    }
+    var commits = {}
 
     // Load empty arrays
     for (const type in typeLabels) {
@@ -109,31 +106,38 @@ function generateMarkdown(allCommits) {
     return output
 }
 
-try {
-    console.log("Preparing release... 12345")
-    const directoryString = core.getInput("directory")
-    console.log("Hello World!")
-    console.log(directoryString)
-
+async function getCommitsForRepo(directoryString, cb) {
     fs.access(directoryString, function(err) {
-        console.log(err)
         if (!err) {
-            console.log("Directory Found!")
             const git = simpleGit(directoryString)
             git.tags((err, tags) => {
-                console.log(err)
                 const tag = tags.latest
                 console.log("Getting commits since " + (tag ? tag : "initial commit"))
                 git.log(tag ? {from: tag, to: "HEAD"} : null).then(output => {
-                    const commits = processCommits(output.all)
-                    const formattedOutput = generateMarkdown(commits)
-                    core.setOutput("changelog", formattedOutput)
+                    cb(output.all)
                 })
             })
         } else {
-            console.log("Directory not found!")
-            core.setFailed("File directory doesn't exist.")
+            cb([])
         }
+    })
+}
+
+try {
+    console.log("Preparing release...")
+    const directoryString = core.getInput("directory")
+    console.log("Looking for git in directory " + directoryString)
+
+    getCommitsForRepo(directory, coreCommits => {
+        getCommitsForRepo(directory + "/resources/[main]", mainCommits => {
+            getCommitsForRepo(directory + "/resources/[stream]", streamCommits => {
+                const rawCommits = {...coreCommits, ...mainCommits, ...streamCommits}
+                console.log(rawCommits)
+                const commits = processCommits(rawCommits)
+                const formattedOutput = generateMarkdown(commits)
+                core.setOutput("changelog", formattedOutput)
+            })
+        })
     })
 
 } catch (error) {
