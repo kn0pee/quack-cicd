@@ -107,6 +107,7 @@ try {
     const directoryString = core.getInput("directory")
 
     fs.access(directoryString, function(err) {
+        console.log(err)
         if (!err) {
             console.log("Directory Found!")
             const git = simpleGit(directoryString)
