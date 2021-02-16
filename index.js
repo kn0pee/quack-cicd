@@ -105,6 +105,8 @@ function generateMarkdown(allCommits) {
 try {
     console.log("Preparing release...")
     const directoryString = core.getInput("directory")
+    console.log("Hello World!")
+    console.log(directoryString)
 
     // fs.access(directoryString, function(err) {
     //     console.log(err)
