@@ -16,7 +16,7 @@ jobs:
       id: generateChangelog
       uses: kn0pee/quack-cicd@main
       with:
-        directory: 'C:\GitHub\production'
+        directory: 'D:\FiveM\Quack-CICD'
 
     - name: Create Release
       id: create_release
