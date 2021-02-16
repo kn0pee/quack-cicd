@@ -106,9 +106,9 @@ try {
     console.log("Preparing release...")
     const directoryString = core.getInput("directory")
 
-    fs.access(directoryString, function(err) {
-        console.log(err)
-        if (!err) {
+    // fs.access(directoryString, function(err) {
+    //     console.log(err)
+    //     if (!err) {
             console.log("Directory Found!")
             const git = simpleGit(directoryString)
             git.tags((err, tags) => {
@@ -120,11 +120,11 @@ try {
                     core.setOutput("changelog", formattedOutput)
                 })
             })
-        } else {
-            console.log("Directory not found!")
-            core.setFailed("File directory doesn't exist.")
-        }
-    })
+    //     } else {
+    //         console.log("Directory not found!")
+    //         core.setFailed("File directory doesn't exist.")
+    //     }
+    // })
 
 } catch (error) {
     core.setFailed(error.message);
