@@ -12,7 +12,7 @@ jobs:
       id: generateChangelog
       uses: kn0pee/quack-cicd@main
       with:
-        directory: 'C:\GitHub\production'
+        directory: 'D:\FiveM\Quack-CICD'
 
     - name: Print Release Notes
       run: |
