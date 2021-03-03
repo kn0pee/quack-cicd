@@ -139,7 +139,7 @@ async function getCommitsForRepo(directoryString, cb) {
 try {
   console.log("Preparing release...");
   const directoryString = core.getInput("directory");
-  console.log("Looking for git in directory " + directoryString);
+  console.log("Looking for git in local directory " + directoryString);
 
   getCommitsForRepo(directoryString, (coreCommits) => {
     getCommitsForRepo(directoryString + "/resources/[main]", (mainCommits) => {
